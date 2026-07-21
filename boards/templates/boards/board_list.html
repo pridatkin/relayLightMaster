@@ -1,0 +1,122 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Управление светом</title>
+    <style>
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      th,
+      td {
+        border: 1px solid #aaa;
+        padding: 8px;
+        text-align: center;
+      }
+      .available {
+        color: green;
+        font-weight: bold;
+      }
+      .unavailable {
+        color: red;
+        font-weight: bold;
+      }
+      .toggle-btn {
+        padding: 4px 12px;
+        cursor: pointer;
+      }
+      .messages {
+        list-style: none;
+        padding: 0;
+      }
+      .messages li {
+        padding: 8px;
+        margin: 5px 0;
+      }
+      .success {
+        background: #d4edda;
+        color: #155724;
+      }
+      .error {
+        background: #f8d7da;
+        color: #721c24;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Платы реле</h2>
+
+    {% if messages %}
+    <ul class="messages">
+      {% for msg in messages %}
+      <li class="{{ msg.tags }}">{{ msg }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+    <p>
+      <a href="{% url 'board_add' %}"><button>Добавить плату</button></a>
+      <a href="{% url 'board_check_all' %}"
+        ><button>Обновить все платы</button></a
+      >
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Описание платы</th>
+          <th>IP-адрес</th>
+          <th>Доступность</th>
+          <th>Реле 1</th>
+          <th>Состояние 1</th>
+          <th>Реле 2</th>
+          <th>Состояние 2</th>
+          <th>Действия</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for board in boards %}
+        <tr>
+          <td>{{ board.description }}</td>
+          <td>{{ board.ip_address }}</td>
+          <td>
+            {% if board.is_available %}
+            <span class="available">Доступна</span>
+            {% else %}
+            <span class="unavailable">Недоступна</span>
+            {% endif %}
+          </td>
+          <td>{{ board.relay1_description|default:"—" }}</td>
+          <td>
+            {% if board.is_available and board.relay1_state is not None %}
+            <a href="{% url 'toggle_relay' board.id 1 %}">
+              <button class="toggle-btn">
+                {% if board.relay1_state %}ВКЛ{% else %}ВЫКЛ{% endif %}
+              </button>
+            </a>
+            {% else %}
+            <button disabled>—</button>
+            {% endif %}
+          </td>
+          <td>{{ board.relay2_description|default:"—" }}</td>
+          <td>
+            {% if board.is_available and board.relay2_state is not None %}
+            <a href="{% url 'toggle_relay' board.id 2 %}">
+              <button class="toggle-btn">
+                {% if board.relay2_state %}ВКЛ{% else %}ВЫКЛ{% endif %}
+              </button>
+            </a>
+            {% else %}
+            <button disabled>—</button>
+            {% endif %}
+          </td>
+          <td>
+            <a href="{% url 'board_edit' board.id %}">Изменить</a>
+            <a href="{% url 'board_delete' board.id %}">Удалить</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </body>
+</html>
