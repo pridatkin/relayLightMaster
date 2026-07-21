@@ -1,7 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib import messages
-from .models import Board
+from django.utils import timezone
+from datetime import datetime, time
+from .models import Board, ScheduleSettings
 from .utils import check_board, send_signal
 
 def board_list(request):
@@ -105,3 +107,103 @@ def toggle_relay(request, board_id, relay_num):
         board.relay2_state = None
         board.save()
     return redirect('board_list')
+
+def turn_all_on(request):
+    """Включает реле 1 и 2 на всех доступных платах."""
+    _turn_all_on(request)
+    messages.success(request, "Все реле включены")
+    return redirect('board_list')
+
+def turn_all_off(request):
+    """Выключает реле 1 и 2 на всех доступных платах."""
+    _turn_all_off(request)
+    messages.success(request, "Все реле выключены")
+    return redirect('board_list')
+
+def schedule_settings(request):
+    """Редактирование глобального расписания."""
+    schedule = ScheduleSettings.load()
+    if request.method == 'POST':
+        schedule.is_active = 'is_active' in request.POST
+        schedule.on_time = request.POST.get('on_time', '08:00')
+        schedule.off_time = request.POST.get('off_time', '22:00')
+        schedule.save()
+        messages.success(request, "Расписание сохранено")
+        return redirect('board_list')
+    return render(request, 'boards/schedule_form.html', {'schedule': schedule})
+
+def sync_schedule(request):
+    """
+    Синхронизирует состояния всех реле согласно расписанию.
+    Если расписание активно и текущее время в интервале между on_time и off_time,
+    включает всё, иначе выключает всё.
+    """
+    schedule = ScheduleSettings.load()
+    if not schedule.is_active:
+        messages.warning(request, "Расписание неактивно. Сначала включите его.")
+        return redirect('board_list')
+
+    now = datetime.now().time()
+    on = schedule.on_time
+    off = schedule.off_time
+
+    # Определяем, нужно ли сейчас включать свет
+    if on <= off:
+        print(on)
+        print(now)
+        print(off)
+        # Интервал внутри одних суток, напр. 08:00 - 22:00
+        should_be_on = on <= now <= off
+    else:
+        # Интервал переходит через полночь, напр. 22:00 - 08:00
+        should_be_on = now >= on or now <= off
+
+    if should_be_on:
+        # Вызываем логику включения всех реле (определена ниже)
+        _turn_all_on(request)
+        messages.success(request, "По расписанию свет включён")
+    else:
+        _turn_all_off(request)
+        messages.success(request, "По расписанию свет выключен")
+
+    return redirect('board_list')
+
+def _turn_all_on(request):
+    """Внутренняя функция включения всех доступных реле (без редиректа)."""
+    for board in Board.objects.all():
+        if not board.is_available:
+            continue
+        try:
+            resp1 = send_signal(board.ip_address, '11')
+            board.relay1_state = (resp1[0] == '1')
+            board.relay2_state = (resp1[1] == '1')
+            board.save()
+            resp2 = send_signal(board.ip_address, '12')
+            board.relay1_state = (resp2[0] == '1')
+            board.relay2_state = (resp2[1] == '1')
+            board.save()
+        except Exception:
+            board.is_available = False
+            board.relay1_state = None
+            board.relay2_state = None
+            board.save()
+
+def _turn_all_off(request):
+    """Внутренняя функция выключения всех доступных реле."""
+    for board in Board.objects.all():
+        if not board.is_available:
+            continue
+        try:
+            resp1 = send_signal(board.ip_address, '21')
+            board.relay1_state = (resp1[0] == '1')
+            board.relay2_state = (resp1[1] == '1')
+            board.save()
+            resp2 = send_signal(board.ip_address, '22')
+            board.relay1_state = (resp2[0] == '1')
+            board.relay2_state = (resp2[1] == '1')
+            board.save()
+        except Exception:
+            board.is_available = False
+            board.relay1_state = None
+            board.relay2_state = None
+            board.save()

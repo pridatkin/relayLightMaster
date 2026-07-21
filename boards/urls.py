@@ -8,4 +8,8 @@ urlpatterns = [
     path('delete/<int:pk>/', views.board_delete, name='board_delete'),
     path('check_all/', views.board_check_all, name='board_check_all'),
     path('toggle/<int:board_id>/<int:relay_num>/', views.toggle_relay, name='toggle_relay'),
+    path('all_on/', views.turn_all_on, name='turn_all_on'),
+    path('all_off/', views.turn_all_off, name='turn_all_off'),
+    path('schedule/', views.schedule_settings, name='schedule_settings'),
+    path('sync_schedule/', views.sync_schedule, name='sync_schedule'),
 ]

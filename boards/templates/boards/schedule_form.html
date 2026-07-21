@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Настройка расписания</title>
+  </head>
+  <body>
+    <h2>Расписание включения/выключения</h2>
+    <form method="post">
+      {% csrf_token %}
+      <p>
+        <label>
+          <input
+            type="checkbox"
+            name="is_active"
+            {% if schedule.is_active %}checked{% endif %}
+          />
+          Расписание включено
+        </label>
+      </p>
+      <p>
+        <label>Время включения:</label>
+        <input
+          type="time"
+          name="on_time"
+          value="{{ schedule.on_time|time:'H:i' }}"
+        />
+      </p>
+      <p>
+        <label>Время выключения:</label>
+        <input
+          type="time"
+          name="off_time"
+          value="{{ schedule.off_time|time:'H:i' }}"
+        />
+      </p>
+      <button type="submit">Сохранить</button>
+      <a href="{% url 'board_list' %}">Отмена</a>
+    </form>
+  </body>
+</html>
