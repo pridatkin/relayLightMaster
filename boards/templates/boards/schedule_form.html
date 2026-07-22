@@ -18,6 +18,12 @@
         </label>
       </p>
       <p>
+        <label>
+            <input type="checkbox" name="auto_sync_enabled" {% if schedule.auto_sync_enabled %}checked{% endif %}>
+            Автоматическая синхронизация каждые 10 минут
+        </label>
+      </p>
+      <p>
         <label>Время включения:</label>
         <input
           type="time"

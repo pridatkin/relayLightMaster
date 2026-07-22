@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'boards',
+    'django_crontab',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -116,3 +117,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+CRONJOBS = [
+    # Запуск каждые 10 минут
+    ('*/10 * * * *', 'boards.cron.sync_schedule_cron', '>> /tmp/sync_schedule.log 2>&1'),
+]

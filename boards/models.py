@@ -24,6 +24,8 @@ class Board(models.Model):
 class ScheduleSettings(models.Model):
     """Глобальные настройки расписания (только одна запись)."""
     is_active = models.BooleanField("Расписание включено", default=False)
+    auto_sync_enabled = models.BooleanField("Автосинхронизация каждые 10 мин", default=False)
+    
     on_time = models.TimeField("Время включения", default="08:00")
     off_time = models.TimeField("Время выключения", default="22:00")
 

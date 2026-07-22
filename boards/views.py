@@ -121,10 +121,10 @@ def turn_all_off(request):
     return redirect('board_list')
 
 def schedule_settings(request):
-    """Редактирование глобального расписания."""
     schedule = ScheduleSettings.load()
     if request.method == 'POST':
         schedule.is_active = 'is_active' in request.POST
+        schedule.auto_sync_enabled = 'auto_sync_enabled' in request.POST
         schedule.on_time = request.POST.get('on_time', '08:00')
         schedule.off_time = request.POST.get('off_time', '22:00')
         schedule.save()
@@ -149,9 +149,6 @@ def sync_schedule(request):
 
     # Определяем, нужно ли сейчас включать свет
     if on <= off:
-        print(on)
-        print(now)
-        print(off)
         # Интервал внутри одних суток, напр. 08:00 - 22:00
         should_be_on = on <= now <= off
     else:
