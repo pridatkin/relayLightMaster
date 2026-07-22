@@ -122,3 +122,8 @@ CRONJOBS = [
     # Запуск каждые 10 минут
     ('*/10 * * * *', 'boards.cron.sync_schedule_cron', '>> /tmp/sync_schedule.log 2>&1'),
 ]
+
+
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/'          # после входа — на главную
+LOGOUT_REDIRECT_URL = '/login/'   # после выхода — на страницу входа

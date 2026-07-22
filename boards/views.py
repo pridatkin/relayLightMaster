@@ -1,15 +1,17 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib import messages
-from django.utils import timezone
+from django.contrib.auth.decorators import login_required
 from datetime import datetime, time
 from .models import Board, ScheduleSettings
 from .utils import check_board, send_signal
 
+@login_required
 def board_list(request):
     boards = Board.objects.all()
     return render(request, 'boards/board_list.html', {'boards': boards})
 
+@login_required
 def board_add(request):
     if request.method == 'POST':
         board = Board(
@@ -29,6 +31,7 @@ def board_add(request):
         return redirect('board_list')
     return render(request, 'boards/board_form.html', {'board': None})
 
+@login_required
 def board_edit(request, pk):
     board = get_object_or_404(Board, pk=pk)
     if request.method == 'POST':
@@ -50,12 +53,14 @@ def board_edit(request, pk):
         return redirect('board_list')
     return render(request, 'boards/board_form.html', {'board': board})
 
+@login_required
 def board_delete(request, pk):
     board = get_object_or_404(Board, pk=pk)
     board.delete()
     messages.success(request, "Плата удалена")
     return redirect('board_list')
 
+@login_required
 def board_check_all(request):
     """Обновляет доступность и состояния реле для всех плат."""
     boards = Board.objects.all()
@@ -72,6 +77,7 @@ def board_check_all(request):
     messages.success(request, "Состояния обновлены")
     return redirect('board_list')
 
+@login_required
 def toggle_relay(request, board_id, relay_num):
     """Переключает реле (1 или 2) на противоположное состояние."""
     board = get_object_or_404(Board, pk=board_id)
@@ -108,18 +114,21 @@ def toggle_relay(request, board_id, relay_num):
         board.save()
     return redirect('board_list')
 
+@login_required
 def turn_all_on(request):
     """Включает реле 1 и 2 на всех доступных платах."""
     _turn_all_on(request)
     messages.success(request, "Все реле включены")
     return redirect('board_list')
 
+@login_required
 def turn_all_off(request):
     """Выключает реле 1 и 2 на всех доступных платах."""
     _turn_all_off(request)
     messages.success(request, "Все реле выключены")
     return redirect('board_list')
 
+@login_required
 def schedule_settings(request):
     schedule = ScheduleSettings.load()
     if request.method == 'POST':
@@ -132,6 +141,7 @@ def schedule_settings(request):
         return redirect('board_list')
     return render(request, 'boards/schedule_form.html', {'schedule': schedule})
 
+@login_required
 def sync_schedule(request):
     """
     Синхронизирует состояния всех реле согласно расписанию.
@@ -165,6 +175,7 @@ def sync_schedule(request):
 
     return redirect('board_list')
 
+@login_required
 def _turn_all_on(request):
     """Внутренняя функция включения всех доступных реле (без редиректа)."""
     for board in Board.objects.all():
@@ -185,6 +196,7 @@ def _turn_all_on(request):
             board.relay2_state = None
             board.save()
 
+@login_required
 def _turn_all_off(request):
     """Внутренняя функция выключения всех доступных реле."""
     for board in Board.objects.all():
