@@ -1,46 +1,34 @@
-<!doctype html>
-<html>
-  <head>
-    <title>Настройка расписания</title>
-  </head>
-  <body>
-    <h2>Расписание включения/выключения</h2>
+{% extends 'boards/base.html' %}
+
+{% block title %}Настройка расписания{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>⏰ Расписание включения/выключения</h2>
     <form method="post">
-      {% csrf_token %}
-      <p>
-        <label>
-          <input
-            type="checkbox"
-            name="is_active"
-            {% if schedule.is_active %}checked{% endif %}
-          />
-          Расписание включено
-        </label>
-      </p>
-      <p>
-        <label>
-            <input type="checkbox" name="auto_sync_enabled" {% if schedule.auto_sync_enabled %}checked{% endif %}>
-            Автоматическая синхронизация каждые 10 минут
-        </label>
-      </p>
-      <p>
-        <label>Время включения:</label>
-        <input
-          type="time"
-          name="on_time"
-          value="{{ schedule.on_time|time:'H:i' }}"
-        />
-      </p>
-      <p>
-        <label>Время выключения:</label>
-        <input
-          type="time"
-          name="off_time"
-          value="{{ schedule.off_time|time:'H:i' }}"
-        />
-      </p>
-      <button type="submit">Сохранить</button>
-      <a href="{% url 'board_list' %}">Отмена</a>
+        {% csrf_token %}
+        <div class="form-group checkbox-group">
+            <input type="checkbox" name="is_active" id="id_is_active"
+                   {% if schedule.is_active %}checked{% endif %}>
+            <label for="id_is_active">Расписание включено</label>
+        </div>
+        <div class="form-group checkbox-group">
+            <input type="checkbox" name="auto_sync_enabled" id="id_auto_sync"
+                   {% if schedule.auto_sync_enabled %}checked{% endif %}>
+            <label for="id_auto_sync">Автосинхронизация каждые 10 мин</label>
+        </div>
+        <div class="form-group">
+            <label>Время включения</label>
+            <input type="time" name="on_time" value="{{ schedule.on_time|time:'H:i' }}">
+        </div>
+        <div class="form-group">
+            <label>Время выключения</label>
+            <input type="time" name="off_time" value="{{ schedule.off_time|time:'H:i' }}">
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">💾 Сохранить</button>
+            <a href="{% url 'board_list' %}" class="btn">Отмена</a>
+        </div>
     </form>
-  </body>
-</html>
+</div>
+{% endblock %}

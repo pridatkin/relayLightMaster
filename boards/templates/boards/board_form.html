@@ -1,50 +1,32 @@
-<!doctype html>
-<html>
-  <head>
-    <title>
-      {% if board %}Редактирование{% else %}Добавление{% endif %} платы
-    </title>
-  </head>
-  <body>
-    <h2>{% if board %}Редактировать{% else %}Добавить{% endif %} плату</h2>
+{% extends 'boards/base.html' %}
+
+{% block title %}{% if board %}Редактирование{% else %}Добавление{% endif %} платы{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>{% if board %}✏️ Редактировать плату{% else %}➕ Добавить плату{% endif %}</h2>
     <form method="post">
-      {% csrf_token %}
-      <p>
-        <label>IP-адрес:</label><br />
-        <input
-          type="text"
-          name="ip_address"
-          value="{{ board.ip_address|default:'' }}"
-          required
-        />
-      </p>
-      <p>
-        <label>Описание платы:</label><br />
-        <input
-          type="text"
-          name="description"
-          value="{{ board.description|default:'' }}"
-          required
-        />
-      </p>
-      <p>
-        <label>Описание реле 1 (какая лампа):</label><br />
-        <input
-          type="text"
-          name="relay1_description"
-          value="{{ board.relay1_description|default:'' }}"
-        />
-      </p>
-      <p>
-        <label>Описание реле 2 (какая лампа):</label><br />
-        <input
-          type="text"
-          name="relay2_description"
-          value="{{ board.relay2_description|default:'' }}"
-        />
-      </p>
-      <button type="submit">Сохранить</button>
-      <a href="{% url 'board_list' %}">Отмена</a>
+        {% csrf_token %}
+        <div class="form-group">
+            <label>IP-адрес</label>
+            <input type="text" name="ip_address" value="{{ board.ip_address|default:'' }}" required>
+        </div>
+        <div class="form-group">
+            <label>Описание платы</label>
+            <input type="text" name="description" value="{{ board.description|default:'' }}" required>
+        </div>
+        <div class="form-group">
+            <label>Описание реле 1 (какая лампа)</label>
+            <input type="text" name="relay1_description" value="{{ board.relay1_description|default:'' }}">
+        </div>
+        <div class="form-group">
+            <label>Описание реле 2 (какая лампа)</label>
+            <input type="text" name="relay2_description" value="{{ board.relay2_description|default:'' }}">
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">💾 Сохранить</button>
+            <a href="{% url 'board_list' %}" class="btn">Отмена</a>
+        </div>
     </form>
-  </body>
-</html>
+</div>
+{% endblock %}
