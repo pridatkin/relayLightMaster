@@ -2,9 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from datetime import datetime, time
+from datetime import datetime
 from .models import Board, ScheduleSettings
-from .utils import check_board, send_signal
+from .utils import check_board, send_signal, try_reconnect
 
 @login_required
 def board_list(request):
@@ -81,7 +81,7 @@ def board_check_all(request):
 def toggle_relay(request, board_id, relay_num):
     """Переключает реле (1 или 2) на противоположное состояние."""
     board = get_object_or_404(Board, pk=board_id)
-    if not board.is_available:
+    if not try_reconnect(board):
         messages.error(request, "Плата недоступна")
         return redirect('board_list')
 
@@ -118,14 +118,14 @@ def toggle_relay(request, board_id, relay_num):
 def turn_all_on(request):
     """Включает реле 1 и 2 на всех доступных платах."""
     _turn_all_on(request)
-    messages.success(request, "Все реле включены")
+    messages.success(request, "Все доступные реле включены")
     return redirect('board_list')
 
 @login_required
 def turn_all_off(request):
     """Выключает реле 1 и 2 на всех доступных платах."""
     _turn_all_off(request)
-    messages.success(request, "Все реле выключены")
+    messages.success(request, "Все доступные реле выключены")
     return redirect('board_list')
 
 @login_required
@@ -179,7 +179,7 @@ def sync_schedule(request):
 def _turn_all_on(request):
     """Внутренняя функция включения всех доступных реле (без редиректа)."""
     for board in Board.objects.all():
-        if not board.is_available:
+        if not try_reconnect(board):
             continue
         try:
             resp1 = send_signal(board.ip_address, '11')
@@ -200,8 +200,8 @@ def _turn_all_on(request):
 def _turn_all_off(request):
     """Внутренняя функция выключения всех доступных реле."""
     for board in Board.objects.all():
-        if not board.is_available:
-            continue
+        if not try_reconnect(board):
+            continue 
         try:
             resp1 = send_signal(board.ip_address, '21')
             board.relay1_state = (resp1[0] == '1')

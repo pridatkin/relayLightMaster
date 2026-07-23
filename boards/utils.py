@@ -1,6 +1,6 @@
 import socket
 
-def send_signal(host: str, message: str, port: int = 6722, timeout: float = 2.0) -> str:
+def send_signal(host: str, message: str, port: int = 6722, timeout: float = 1.0) -> str:
     """
     Отправляет TCP-сообщение на плату и возвращает ответ (первые 2 символа).
     """
@@ -30,3 +30,19 @@ def check_board(ip: str) -> dict:
         return {'available': True, 'relay1': relay1, 'relay2': relay2}
     except Exception:
         return {'available': False, 'relay1': None, 'relay2': None}
+    
+def try_reconnect(board):
+    """Пытается восстановить связь с платой, если она была недоступна.
+    Возвращает True, если плата теперь доступна (или была доступна ранее).
+    """
+    if board.is_available:
+        return True  # уже доступна
+    # Пытаемся проверить доступность
+    status = check_board(board.ip_address)
+    if status['available']:
+        board.is_available = True
+        board.relay1_state = status['relay1']
+        board.relay2_state = status['relay2']
+        board.save()
+        return True
+    return False

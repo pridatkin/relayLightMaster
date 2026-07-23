@@ -1,8 +1,7 @@
 from django.core.management.base import BaseCommand
 from boards.models import ScheduleSettings, Board
-from boards.utils import send_signal
+from boards.utils import send_signal, try_reconnect
 from datetime import datetime
-from django.contrib import messages
 
 class Command(BaseCommand):
     help = 'Синхронизация реле по расписанию (для cron)'
@@ -30,7 +29,7 @@ class Command(BaseCommand):
 
         # Выполняем включение/выключение
         for board in Board.objects.all():
-            if not board.is_available:
+            if not try_reconnect(board):
                 continue
             try:
                 if should_be_on:

@@ -119,8 +119,8 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 CRONJOBS = [
-    # Запуск каждые 10 минут
-    ('*/10 * * * *', 'boards.cron.sync_schedule_cron', '>> /tmp/sync_schedule.log 2>&1'),
+    # Запуск каждые 5 минут
+    ('*/5 * * * *', 'boards.cron.sync_schedule_cron', '>> /tmp/sync_schedule.log 2>&1'),
 ]
 
 
