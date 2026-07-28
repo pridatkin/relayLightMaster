@@ -28,7 +28,7 @@
 
    ```bash
    git clone <url-репозитория>
-   cd light_control
+   cd relayLightMaster
    ```
 
 2. Запустите контейнеры:
@@ -37,19 +37,15 @@
    docker compose up --build -d
    ```
 
-3. Выполните миграции базы данных:
+   > **Примечание:** Миграции базы данных выполняются автоматически при старте контейнера благодаря встроенному скрипту. Вручную запускать `python manage.py migrate` не требуется.
 
-   ```bash
-   docker exec -it relay-web python manage.py migrate
-   ```
-
-4. Создайте суперпользователя для входа в веб-интерфейс:
+3. Создайте суперпользователя для входа в веб-интерфейс:
 
    ```bash
    docker exec -it relay-web python manage.py createsuperuser
    ```
 
-5. Откройте браузер и перейдите на `http://localhost:8000`. Войдите под созданными учётными данными.
+4. Откройте браузер и перейдите на `http://localhost:8000`. Войдите под созданными учётными данными.
 
 ### Вариант 2. Локальная установка (без Docker)
 
@@ -57,7 +53,7 @@
 
    ```bash
    git clone <url-репозитория>
-   cd light_control
+   cd relayLightMaster
    ```
 
 2. Создайте и активируйте виртуальное окружение:
@@ -177,12 +173,12 @@
 ## Структура проекта
 
 ```plaintext
-light_control/
-├── light_control/          # настройки проекта Django
+relayLightMaster/
+├── relayLightMaster/          # настройки проекта Django
 │   ├── settings.py
 │   ├── urls.py
 │   └── wsgi.py
-├── boards/                  # основное приложение
+├── boards/                    # основное приложение
 │   ├── management/
 │   │   └── commands/
 │   │       └── sync_schedule.py   # команда cron-синхронизации
