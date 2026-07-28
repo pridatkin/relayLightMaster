@@ -4,7 +4,9 @@ services:
     container_name: relay-web
     ports:
       - "8000:8000"
-    command: python manage.py runserver 0.0.0.0:8000
+    command: >
+      bash -c "python manage.py migrate &&
+               python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./db.sqlite3:/app/db.sqlite3
 
