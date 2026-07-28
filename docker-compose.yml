@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   web:
     build: .
@@ -7,12 +5,13 @@ services:
     ports:
       - "8000:8000"
     command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./db.sqlite3:/app/db.sqlite3
 
   cron:
     build: .
     container_name: relay-cron
-    # Устанавливаем cron и запускаем его в фоновом режиме
     command: >
-      bash -c "apt-get update && apt-get install -y cron &&
-               python manage.py crontab add &&
-               cron -f"
+      bash -c "python manage.py crontab add && cron -f"
+    volumes:
+      - ./db.sqlite3:/app/db.sqlite3
