@@ -1,0 +1,12 @@
+services:
+  lightmaster:
+    build: .
+    container_name: lightMaster
+    ports:
+      - "8000:8000"
+    command: >
+      bash -c "python manage.py migrate &&
+               python manage.py crontab add && cron &&
+               python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./data:/app/data
